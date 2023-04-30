@@ -1,0 +1,32 @@
+# Executables and object files
+*.o
+*.out
+*.a
+*.exe
+*.so
+*.dll
+test_gnl
+
+# Compiled dynamic libraries
+*.dylib
+
+# Backup files
+*~
+*.swp
+*.bak
+
+# Temporary files
+*.tmp
+*.log
+
+# IDE and editor files
+.vscode/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+*.project
+*.userprefs
+*.tags
+
+# macOS specific
+.DS_Store
