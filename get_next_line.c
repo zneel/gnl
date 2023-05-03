@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:09:47 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/03 13:47:57 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/03 15:33:25 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,19 +25,6 @@ size_t	ft_strlen(char *s)
 	return (cpy - s);
 }
 
-char	*ft_strncat(char *dst, char *src, size_t n)
-{
-	size_t	d_len;
-
-	d_len = ft_strlen(dst);
-	while (*src && n--)
-	{
-		dst[d_len++] = *src++;
-	}
-	dst[d_len] = 0;
-	return (dst);
-}
-
 char	*ft_strdup(char *s)
 {
 	char	*new;
@@ -53,24 +40,15 @@ char	*ft_strdup(char *s)
 	return (new);
 }
 
-void	lst_chr(t_list *head, char c)
+char	*ft_strchr(char *s, char c)
 {
-	size_t	i;
-
-	i = 0;
-	while (head)
+	while (*s)
 	{
-		if (head->data)
-		{
-			while (head->data[i])
-			{
-				if (head->data[i] == c)
-					head->pos += i;
-				i++;
-			}
-		}
-		head = head->next;
+		if (*s == c)
+			return (s);
+		s++;
 	}
+	return (NULL);
 }
 
 size_t	lst_len(t_list *head)
@@ -143,8 +121,38 @@ void	lst_print(t_list *head)
 	{
 		printf("value=%s\n", current->data);
 		printf("len=%ld\n", ft_strlen(current->data));
-		printf("pos=%ld\n", current->pos);
 		current = current->next;
+	}
+}
+
+size_t	check_eol(t_list *head)
+{
+	size_t	i;
+
+	i = 0;
+	while (head)
+	{
+		while (*head->content)
+		{
+			if (*head->content == '\n')
+				return (i);
+			head->content++;
+			i++;
+		}
+		head = head->next;
+	}
+	return (0);
+}
+
+void	lst_to_line(char **line, t_list *head)
+{
+	size_t	chars_to_eol;
+
+	chars_to_eol = 0;
+	while (*head)
+	{
+		*line = malloc();
+		head = head->next;
 	}
 }
 
@@ -154,20 +162,24 @@ char	*get_next_line(int fd)
 	char			buffer[BUFFER_SIZE + 1];
 	static t_list	*head;
 	char			*line;
+	size_t			char_count;
 
-	(void)line;
 	head = NULL;
 	printf("=========================\n\n");
 	while ((ret = read(fd, buffer, BUFFER_SIZE)) > 0)
 	{
 		buffer[ret] = 0;
 		lst_append(&head, buffer);
-		printf("head addr=%p\n", head);
-		printf("ret value=%d\n", ret);
-		lst_chr(head, '\n');
+		// printf("head addr=%p\n", head);
+		// printf("ret value=%d\n", ret);
+		lst_print(head);
+		if (check_eol(buffer))
+		{
+			printf("has EOL\n");
+			while (head)
+		}
 	}
 	printf("lst_len=%ld\n", lst_len(head));
-	lst_print(head);
 	lst_clear(head);
 	printf("=========================\n\n");
 	return (NULL);

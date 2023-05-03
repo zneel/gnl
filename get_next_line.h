@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:06:33 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/03 13:30:00 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/03 15:08:00 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ typedef struct s_list
 {
 	struct s_list	*next;
 	char			*data;
-	size_t			pos;
 }				t_list;
 
 #endif
