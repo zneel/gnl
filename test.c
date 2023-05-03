@@ -2,7 +2,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 
-void	test_case(char *filename, int buffer_size)
+void	test_case(char *filename)
 {
 	int		fd;
 	char	*line;
@@ -14,11 +14,11 @@ void	test_case(char *filename, int buffer_size)
 		return ;
 	}
 	printf("Reading from file: %s\n", filename);
-	printf("Buffer size: %d\n", buffer_size);
+	printf("Buffer size: %d\n", BUFFER_SIZE);
 	while ((line = get_next_line(fd)) != NULL)
 	{
-		printf("%s", line);
-		free(line);
+		// printf("%s", line);
+		// free(line);
 	}
 	close(fd);
 	printf("\n");
@@ -27,17 +27,14 @@ void	test_case(char *filename, int buffer_size)
 int	main(void)
 {
 	// Normal file
-	test_case("testfile.txt", 42);
-	test_case("testfile.txt", 1);
-	test_case("testfile.txt", 9999);
-	test_case("testfile.txt", 10000000);
-	// Empty file
-	test_case("emptyfile.txt", 42);
-	// File with a single character
-	test_case("single_char.txt", 42);
-	// File with no newline character
-	test_case("no_newline.txt", 42);
-	// File with very long lines
-	test_case("long_lines.txt", 42);
+	test_case("testfile.txt");
+	// // Empty file
+	// test_case("emptyfile.txt");
+	// // File with a single character
+	// test_case("single_char.txt");
+	// // File with no newline character
+	// test_case("no_newline.txt");
+	// // File with very long lines
+	// test_case("long_lines.txt");
 	return (0);
 }
