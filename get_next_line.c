@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:09:47 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/04 17:43:09 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/04 18:14:06 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,24 +43,24 @@ t_list	*lst_new(char *content)
 	return (new);
 }
 
-t_list	*lst_append(t_list **head, char *content)
+t_list	*lst_append(t_list *head, char *content)
 {
 	t_list	*tail;
 	t_list	*new_node;
 
-	tail = *head;
+	tail = head;
 	new_node = lst_new(content);
 	if (!new_node)
 		return (NULL);
-	if (!*head)
+	if (!head)
 	{
-		*head = new_node;
-		return (*head);
+		head = new_node;
+		return (head);
 	}
 	while (tail->next)
 		tail = tail->next;
 	tail->next = new_node;
-	return (*head);
+	return (head);
 }
 
 void	lst_print(t_list *head)
@@ -124,14 +124,12 @@ char	*ft_substr(char *s,  int start, int len)
 }
 
 
-char	*lst_to_line(t_list **head, int line_len)
+char	*lst_to_line(t_list **head)
 {
 	char	*line;
 	t_list	*tail;
 
-	if (line_len < 0)
-		line_len = lst_data_len(*head);
-	line = malloc(sizeof(char) * (line_len + 1));
+	line = malloc(sizeof(char) * (lst_data_len(*head) + 30));
 	if (!line)
 		return (NULL);
 	line[0] = 0;
@@ -139,9 +137,10 @@ char	*lst_to_line(t_list **head, int line_len)
 	while (*head)
 	{
 		tail = *head;
-		int sz = (*head)->eol >= 0 ? (*head)->eol + 1 : (*head)->d_len;
+		int sz = (*head)->eol > 0 ? (*head)->eol : (*head)->d_len;
+		printf("sz=%d\n", sz);
 		line = ft_strncat(line, (*head)->data, sz);
-		if ((*head)->eol >= 0 && ((*head)->d_len >= (*head)->eol))
+		if ((*head)->eol >= 0)
 		{
 			char *tmp = ft_substr((*head)->data, (*head)->eol + 1, (*head)->d_len - (*head)->eol);
 			*head = lst_new(tmp);
@@ -162,9 +161,7 @@ char	*get_next_line(int fd)
 	int				ret;
 	char			*buffer;
 	static t_list	*head;
-	int				eol;
 
-	// printf("\n\n=========================\n\n");
 	if (fd < 0)
 		return (NULL);
 	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
@@ -172,29 +169,23 @@ char	*get_next_line(int fd)
 		return (NULL);
 	while ((ret = read(fd, buffer, BUFFER_SIZE)) > 0)
 	{
-		// printf("lst_len%d\n", lst_len(head));
+		lst_print(head);
 		buffer[ret] = 0;
 		if (head)
 		{
-			eol = lst_check_eol(head);
-			if (eol >= 0)
+			if (lst_check_eol(head) >= 0)
 			{
 				free(buffer);
-				// printf("!has EOL %d!\n", eol + 1);
-				return (lst_to_line(&head, eol));
+				return (lst_to_line(&head));
 			}
 		}
-		lst_append(&head, buffer);
-		// lst_print(head);
-
+		head = lst_append(head, buffer);
 	}
 	if (ret == 0 && lst_len(head) > 0)
 	{
 		free(buffer);
-		return (lst_to_line(&head, -1));
+		return (lst_to_line(&head));
 	}
 	free(buffer);
-	// printf("ret value after loop = %d\n", ret);
-	// printf("\n\n=========================\n\n");
 	return (NULL);
 }
