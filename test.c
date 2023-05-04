@@ -17,8 +17,8 @@ void	test_case(char *filename)
 	printf("Buffer size: %d\n", BUFFER_SIZE);
 	while ((line = get_next_line(fd)) != NULL)
 	{
-		// printf("%s", line);
-		// free(line);
+		printf("LINE_RETURNED=%s", line);
+		free(line);
 	}
 	close(fd);
 	printf("\n");
@@ -27,7 +27,7 @@ void	test_case(char *filename)
 int	main(void)
 {
 	// Normal file
-	test_case("testfile.txt");
+	test_case("simplefile.txt");
 	// // Empty file
 	// test_case("emptyfile.txt");
 	// // File with a single character
