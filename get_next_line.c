@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:09:47 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/04 15:55:03 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/04 17:43:09 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int	lst_check_eol(t_list *head)
 	chars_to_eol = -1;
 	while (head)
 	{
-		if (head->eol > 0)
+		if (head->eol >= 0)
 		{
 			chars_to_eol += head->eol;
 			return (chars_to_eol);
@@ -128,7 +128,6 @@ char	*lst_to_line(t_list **head, int line_len)
 {
 	char	*line;
 	t_list	*tail;
-	int		i;
 
 	if (line_len < 0)
 		line_len = lst_data_len(*head);
@@ -137,13 +136,12 @@ char	*lst_to_line(t_list **head, int line_len)
 		return (NULL);
 	line[0] = 0;
 	tail = NULL;
-	i = 0;
 	while (*head)
 	{
 		tail = *head;
-		int sz = (*head)->eol > 0 ? (*head)->eol : (*head)->d_len;
+		int sz = (*head)->eol >= 0 ? (*head)->eol + 1 : (*head)->d_len;
 		line = ft_strncat(line, (*head)->data, sz);
-		if ((*head)->eol > 0 && ((*head)->d_len > (*head)->eol))
+		if ((*head)->eol >= 0 && ((*head)->d_len >= (*head)->eol))
 		{
 			char *tmp = ft_substr((*head)->data, (*head)->eol + 1, (*head)->d_len - (*head)->eol);
 			*head = lst_new(tmp);
@@ -162,29 +160,41 @@ char	*lst_to_line(t_list **head, int line_len)
 char	*get_next_line(int fd)
 {
 	int				ret;
-	char			buffer[BUFFER_SIZE + 1];
+	char			*buffer;
 	static t_list	*head;
 	int				eol;
 
 	// printf("\n\n=========================\n\n");
 	if (fd < 0)
 		return (NULL);
+	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buffer)
+		return (NULL);
 	while ((ret = read(fd, buffer, BUFFER_SIZE)) > 0)
 	{
+		// printf("lst_len%d\n", lst_len(head));
 		buffer[ret] = 0;
-		// printf("head addr=%p\n", head);
+		if (head)
+		{
+			eol = lst_check_eol(head);
+			if (eol >= 0)
+			{
+				free(buffer);
+				// printf("!has EOL %d!\n", eol + 1);
+				return (lst_to_line(&head, eol));
+			}
+		}
 		lst_append(&head, buffer);
 		// lst_print(head);
-		eol = lst_check_eol(head);
-		if (eol > 0)
-		{
-			// printf("!has EOL %d!\n", eol + 1);
-			return (lst_to_line(&head, eol + 1));
-		}
+
 	}
 	if (ret == 0 && lst_len(head) > 0)
+	{
+		free(buffer);
 		return (lst_to_line(&head, -1));
+	}
+	free(buffer);
 	// printf("ret value after loop = %d\n", ret);
-	printf("\n\n=========================\n\n");
+	// printf("\n\n=========================\n\n");
 	return (NULL);
 }

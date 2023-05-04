@@ -27,7 +27,8 @@ void	test_case(char *filename)
 int	main(void)
 {
 	// Normal file
-	test_case("simplefile.txt");
+	// test_case("simplefile.txt");
+	test_case("gnlTester/files/alternate_line_nl_no_nl");
 	// // Empty file
 	// test_case("emptyfile.txt");
 	// // File with a single character
