@@ -6,44 +6,45 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:10:07 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/04 17:41:03 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/05 09:06:09 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char *ft_strncat(char *dst, char *src, int n)
-{
-	int l_dst;
 
-	l_dst = ft_strlen(dst);
-	while (*src && n--)
-		dst[l_dst++] = *src++;
-	dst[l_dst] = 0;
-	return (dst);
-}
+// char *ft_strncat(char *dst, char *src, int n)
+// {
+// 	int l_dst;
 
-int	ft_strlen(char *s)
-{
-	char	*cpy;
+// 	l_dst = ft_strlen(dst);
+// 	while (*src && n--)
+// 		dst[l_dst++] = *src++;
+// 	dst[l_dst] = 0;
+// 	return (dst);
+// }
 
-	cpy = s;
-	while (*cpy)
-		cpy++;
-	return (cpy - s);
-}
+// int	ft_strlen(char *s)
+// {
+// 	char	*cpy;
 
-char	*ft_strdup(char *s)
-{
-	char	*new;
-	int	i;
+// 	cpy = s;
+// 	while (*cpy)
+// 		cpy++;
+// 	return (cpy - s);
+// }
 
-	new = malloc((ft_strlen(s) + 1) * sizeof(char));
-	if (!new)
-		return (NULL);
-	i = 0;
-	while (*s)
-		new[i++] = *s++;
-	new[i] = 0;
-	return (new);
-}
+// char	*ft_strdup(char *s)
+// {
+// 	char	*new;
+// 	int	i;
+
+// 	new = malloc((ft_strlen(s) + 1) * sizeof(char));
+// 	if (!new)
+// 		return (NULL);
+// 	i = 0;
+// 	while (*s)
+// 		new[i++] = *s++;
+// 	new[i] = 0;
+// 	return (new);
+// }

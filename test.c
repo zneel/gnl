@@ -21,18 +21,17 @@ void	test_case(char *filename)
 		free(line);
 	}
 	close(fd);
-	printf("\n");
 }
 
 int	main(void)
 {
 	// Normal file
-	// test_case("simplefile.txt");
-	// test_case("gnlTester/files/alternate_line_nl_no_nl");
+	test_case("simplefile.txt");
+	// test_case("gnlTester/files/alternate_line_nl_with_nl");
 	// // Empty file
 	// test_case("emptyfile.txt");
 	// File with a single character
-	test_case("single_char.txt");
+	// test_case("single_char.txt");
 	// File with no newline character
 	// test_case("no_newline.txt");
 	// File with very long lines

@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:09:47 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/04 18:14:06 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/05 18:12:09 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int	lst_len(t_list *head)
 	return (i);
 }
 
-t_list	*lst_new(char *content)
+t_list	*lst_new(void)
 {
 	t_list	*new;
 
@@ -34,22 +34,20 @@ t_list	*lst_new(char *content)
 	if (!new)
 		return (NULL);
 	new->next = NULL;
-	new->data = ft_strdup(content);
-	new->eol = -1;
-	if (new->data && strchr(new->data, '\n'))
-		new->eol = strchr(new->data, '\n') - new->data;
-	if (new->data)
-		new->d_len = ft_strlen(new->data);
+	new->data = NULL;
+	new->read = 0;
+	new->eol = 0;
+	new->eol_found = 0;
 	return (new);
 }
 
-t_list	*lst_append(t_list *head, char *content)
+t_list	*lst_append(t_list *head)
 {
 	t_list	*tail;
 	t_list	*new_node;
 
 	tail = head;
-	new_node = lst_new(content);
+	new_node = lst_new();
 	if (!new_node)
 		return (NULL);
 	if (!head)
@@ -60,132 +58,116 @@ t_list	*lst_append(t_list *head, char *content)
 	while (tail->next)
 		tail = tail->next;
 	tail->next = new_node;
-	return (head);
+	return (new_node);
 }
 
 void	lst_print(t_list *head)
 {
 	while (head)
 	{
-		printf("value=%s\n", head->data);
-		printf("len=%d\n", head->d_len);
-		printf("eol=%d\n", head->eol);
+		printf(" \ncurrentPtr=%p ", head);
+		printf(" nextPtr=%p ", head->next);
+		printf(" data=%.*s ", head->read, head->data);
+		printf(" read=%d ", head->read);
+		printf(" eol=%d ", head->eol);
+		printf(" eol_found=%d\n", head->eol_found);
 		head = head->next;
 	}
 }
 
-int	lst_check_eol(t_list *head)
+int	line_size(t_list *head)
 {
-	int	chars_to_eol;
+	t_list	*current;
+	int		total;
 
-	chars_to_eol = -1;
-	while (head)
+	current = head;
+	total = 0;
+	while (current)
 	{
-		if (head->eol >= 0)
-		{
-			chars_to_eol += head->eol;
-			return (chars_to_eol);
-		}
-		chars_to_eol += head->d_len;
-		head = head->next;
+		if (current->read > 0)
+			total += current->read;
+		current = current->next;
 	}
-	return (-1);
+	return (total);
 }
 
-int		lst_data_len(t_list *head)
+char*	lst_to_line(t_list **head)
 {
-	int	i = 0;
-	while (head)
-	{
-		i += head->d_len;
-		head = head->next;
-	}
-	return (i);
-}
+	size_t line_len = line_size(*head);
+	size_t copied = 0;
+	t_list *curr = *head;
+	t_list *prev = *head;
+	char *line;
 
-char	*ft_substr(char *s,  int start, int len)
-{
-	char	*new;
-	int	s_len;
-
-	if (!s)
-		return (NULL);
-	s_len = ft_strlen(s);
-	if (start >= s_len)
-		start = s_len;
-	if (len > s_len - start)
-		len = s_len - start;
-	new = malloc((len + 1) * sizeof(char));
-	if (!new)
-		return (NULL);
-	memcpy(new, s + start, len);
-	new[len] = 0;
-	return (new);
-}
-
-
-char	*lst_to_line(t_list **head)
-{
-	char	*line;
-	t_list	*tail;
-
-	line = malloc(sizeof(char) * (lst_data_len(*head) + 30));
+	line = malloc(sizeof(char) * (line_len + 1));
 	if (!line)
-		return (NULL);
-	line[0] = 0;
-	tail = NULL;
-	while (*head)
+		return NULL;
+	line[line_len] = 0;
+	while (curr)
 	{
-		tail = *head;
-		int sz = (*head)->eol > 0 ? (*head)->eol : (*head)->d_len;
-		printf("sz=%d\n", sz);
-		line = ft_strncat(line, (*head)->data, sz);
-		if ((*head)->eol >= 0)
+		if (!curr->eol_found)
 		{
-			char *tmp = ft_substr((*head)->data, (*head)->eol + 1, (*head)->d_len - (*head)->eol);
-			*head = lst_new(tmp);
-			free(tail->data);
-			free(tail);
-			free(tmp);
-			break;
+			memcpy(line + copied, curr->data, curr->read);
+			copied += curr->read;
 		}
-		*head = (*head)->next;
-		free(tail->data);
-		free(tail);
+		else
+		{
+			if (curr->eol + 1 < curr->read)
+			{
+				*head = lst_new();
+				(*head)->data = malloc(sizeof(char) * (curr->read - curr->eol + 1));
+				memcpy((*head)->data, curr->data+curr->eol, curr->read-curr->eol);
+				return NULL;
+			}
+		}
+		prev = curr;
+		curr = curr->next;
+		free(prev->data);
+		free(prev);
 	}
-	return (line);
+	*head = NULL;
+	return line;
+}
+
+t_list	*read_to_lst(t_list *head, int fd)
+{
+	t_list	*curr;
+
+	if (!head)
+		head = lst_append(head);
+	curr = head;
+	while (1)
+	{
+		curr->data = malloc(sizeof(char) * BUFFER_SIZE);
+		if (!curr->data)
+			return (NULL);
+		curr->read = read(fd, curr->data, BUFFER_SIZE);
+		if (curr->read < 1)
+		{
+			free(curr->data);
+			free(curr);
+			return (NULL);
+		}
+		if (memchr(curr->data, '\n', curr->read))
+		{
+			curr->eol = (char *)memchr(curr->data, '\n', curr->read) - curr->data;
+			curr->eol_found = 1;
+			break ;
+		}
+		curr = lst_append(head);
+	}
+	return (head);
 }
 
 char	*get_next_line(int fd)
 {
-	int				ret;
-	char			*buffer;
 	static t_list	*head;
 
-	if (fd < 0)
+	if (fd < 0 || BUFFER_SIZE < 1)
 		return (NULL);
-	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buffer)
+	head = read_to_lst(head, fd);
+	if (!head)
 		return (NULL);
-	while ((ret = read(fd, buffer, BUFFER_SIZE)) > 0)
-	{
-		lst_print(head);
-		buffer[ret] = 0;
-		if (head)
-		{
-			if (lst_check_eol(head) >= 0)
-			{
-				free(buffer);
-				return (lst_to_line(&head));
-			}
-		}
-		head = lst_append(head, buffer);
-	}
-	if (ret == 0 && lst_len(head) > 0)
-	{
-		free(buffer);
-		return (lst_to_line(&head));
-	}
-	free(buffer);
-	return (NULL);
+	lst_print(head);
+	return (lst_to_line(&head));
 }

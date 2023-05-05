@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "iosfwd": "c",
-        "limits": "c",
-        "streambuf": "c",
-        "get_next_line.h": "c"
-    }
-}

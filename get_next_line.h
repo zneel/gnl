@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:06:33 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/04 17:40:59 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/05 17:29:37 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,14 @@
 # include <string.h>
 
 char	*get_next_line(int fd);
-char *ft_strncat(char *dst, char *src, int n);
-int	ft_strlen(char *s);
-char	*ft_strdup(char *s);
 
 typedef struct s_list
 {
 	struct s_list	*next;
 	char			*data;
+	int				read;
 	int				eol;
-	int			d_len;
+	int				eol_found;
 }				t_list;
 
 #endif
