@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:09:47 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/05 21:11:50 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/06 00:57:30 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,128 +14,96 @@
 #include <stdio.h>
 #include <strings.h>
 
-void	lst_print(t_list *head)
+char *strjoin(char *s1, char *s2)
 {
-	while (head)
+	char *new;
+	int total_size = strlen(s1) + strlen(s2);
+
+	new = malloc(sizeof(char) * (total_size + 1));
+	if (!new)
+		return (NULL);
+	bzero(new, total_size + 1);
+	strcat(new, s1);
+	strcat(new, s2);
+	free(s1);
+	return (new);
+}
+
+char *get_line(char *stc)
+{
+	char *line;
+	size_t line_len;
+
+	if (!*stc)
+		return (NULL);
+	if (strchr(stc, '\n'))
+		line_len = strchr(stc, '\n') - stc + 1;
+	else
+		line_len = strlen(stc);
+	line = malloc(sizeof(char) * (line_len + 1));
+	if (!line)
+		return NULL;
+	line[line_len] = 0;
+	memmove(line, stc, line_len);
+	return (line);
+}
+
+char *clean_stc(char *stc) 
+{
+	char *new;
+	int i;
+	int j;
+
+	i = 0;
+	while (stc[i] && stc[i] != '\n')
+		i++;
+	if (!stc[i])
+		return (free(stc), NULL);
+	new = malloc(sizeof(char) * strlen(stc) - i);
+	if (!new)
+		return (NULL);
+	j = i + 1;
+	while (stc[++i])
+		new[i - j] = stc[i];
+	new[i - j] = 0;
+	free(stc);
+    return new;
+}
+
+char *read_to_buff(int fd, char *stc)
+{
+	char	*buffer;
+	int		bytescopy;
+
+	bytescopy = 1;
+	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buffer)
+		return (NULL);
+	while (!strchr(stc, '\n') && bytescopy)
 	{
-		printf(" \ncurrentPtr=%p ", head);
-		printf(" nextPtr=%p ", head->next);
-		printf(" data=%.*s ", head->read, head->data);
-		printf(" read=%d ", head->read);
-		printf(" eol=%d ", head->eol);
-		printf(" eol_found=%d\n", head->eol_found);
-		head = head->next;
+		bytescopy = read(fd, buffer, BUFFER_SIZE);
+		if (bytescopy == -1)
+			return (free(buffer), NULL);
+		buffer[bytescopy] = '\0';
+		stc = strjoin(stc, buffer);
 	}
+	free(buffer);
+	return (stc);
 }
 
-int	line_size(t_list *head)
+char *get_next_line(int fd)
 {
-	t_list	*current;
-	int		total;
+	static  char *stc;
+	char *line;
 
-	current = head;
-	total = 0;
-	while (current)
-	{
-		if (current->read > 0)
-			total += current->read;
-		current = current->next;
-	}
-	return (total);
-}
-
-char* lst_to_line(t_list *head)
-{
-    size_t line_len = line_size(head);
-    size_t copied = 0;
-    char *line;
-
-    line = malloc(sizeof(char) * (line_len + 1));
-    if (!line)
-        return NULL;
-    bzero(line, line_len + 1);
-    while (head)
-    {
-        if (!head->eol_found)
-        {
-            memcpy(line + copied, head->data, head->read);
-            copied += head->read;
-        }
-        else
-        {
-			memcpy(line + copied, head->data, head->eol + 1);
-			copied += head->eol + 1;
-        }
-        head = head->next;
-    }
-    return line;
-}
-
-t_list	*read_to_lst(t_list *head, int fd)
-{
-	t_list	*curr;
-
-	if (!head)
-		head = lst_append(head);
-	curr = head;
-	while (!curr->eof)
-	{
-		curr->data = malloc(sizeof(char) * BUFFER_SIZE);
-		if (!curr->data)
-			return (NULL);
-		curr->read = read(fd, curr->data, BUFFER_SIZE);
-		if (curr->read < 1)
-		{
-			free(curr->data);
-			free(curr);
-			curr->eof = 1;
-			break;
-		}
-		if (memchr(curr->data, '\n', curr->read))
-		{
-			curr->eol = (char *)memchr(curr->data, '\n', curr->read) - curr->data;
-			curr->eol_found = 1;
-			break ;
-		}
-		// curr = lst_append(head);
-	}
-	return (head);
-}
-
-t_list	*lst_shift(t_list *head)
-{
-	t_list	*new;
-
-	new = lst_new();
-	if (head == NULL || new == NULL)
+	if (fd < 0 || BUFFER_SIZE < 1 || read(fd, &line, 0) < 0)
 		return (NULL);
-	while (head && head->next)
-		head = head->next;
-	new->data = malloc(sizeof(char) * (head->read - (head->eol + 1)));
-	if (new->data == NULL)
+	stc = read_to_buff(fd, stc);
+	if (!stc)
 		return (NULL);
-	memcpy(new->data, head->data + head->eol + 1, head->read - (head->eol + 1));
-	new->read = head->read - (head->eol + 1);
-	lst_free(&head);
-	return(new);
-}
-
-char	*get_next_line(int fd)
-{
-	static t_list	*head;
-	char 			*line;
-
-	if (fd < 0 || BUFFER_SIZE < 1)
-		return (NULL);
-	head = read_to_lst(head, fd);
-	if (!head)
-		return (NULL);
-	if (head->eof)
-	{
-		lst_free(&head);
-		return (NULL);
-	}
-	line = lst_to_line(head);
-	head = lst_shift(head);
-	return line;
+	line = get_line(stc);
+	if (!line)
+		return (free(stc), NULL);
+	stc = clean_stc(stc);
+	return (line);
 }

@@ -1,5 +1,5 @@
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -D BUFFER_SIZE=10 -g3
+CFLAGS = -Wall -Wextra -Werror -D BUFFER_SIZE=42 -g3
 SRC = test.c get_next_line.c get_next_line_utils.c
 OBJ = $(SRC:.c=.o)
 EXEC = test_gnl
