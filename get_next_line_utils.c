@@ -6,45 +6,60 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:10:07 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/05 09:06:09 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/05 20:51:02 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+t_list	*lst_new(void)
+{
+	t_list	*new;
 
-// char *ft_strncat(char *dst, char *src, int n)
-// {
-// 	int l_dst;
+	new = malloc(sizeof(t_list));
+	if (!new)
+		return (NULL);
+	new->next = NULL;
+	new->data = NULL;
+	new->read = 0;
+	new->eol = 0;
+	new->eol_found = 0;
+	new->eof = 0;
+	return (new);
+}
 
-// 	l_dst = ft_strlen(dst);
-// 	while (*src && n--)
-// 		dst[l_dst++] = *src++;
-// 	dst[l_dst] = 0;
-// 	return (dst);
-// }
+t_list	*lst_append(t_list *head)
+{
+	t_list	*tail;
+	t_list	*new_node;
 
-// int	ft_strlen(char *s)
-// {
-// 	char	*cpy;
+	tail = head;
+	new_node = lst_new();
+	if (!new_node)
+		return (NULL);
+	if (!head)
+	{
+		head = new_node;
+		return (head);
+	}
+	while (tail->next)
+		tail = tail->next;
+	tail->next = new_node;
+	return (new_node);
+}
 
-// 	cpy = s;
-// 	while (*cpy)
-// 		cpy++;
-// 	return (cpy - s);
-// }
+void lst_free(t_list **head) 
+{
+    t_list *current;
+    t_list *next;
 
-// char	*ft_strdup(char *s)
-// {
-// 	char	*new;
-// 	int	i;
-
-// 	new = malloc((ft_strlen(s) + 1) * sizeof(char));
-// 	if (!new)
-// 		return (NULL);
-// 	i = 0;
-// 	while (*s)
-// 		new[i++] = *s++;
-// 	new[i] = 0;
-// 	return (new);
-// }
+    current = *head;
+    while (current) 
+    {
+        next = current->next;
+        free(current->data);
+        free(current);
+        current = next;
+    }
+    *head = NULL;
+}

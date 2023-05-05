@@ -6,60 +6,13 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:09:47 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/05 18:12:09 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/05 21:11:50 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h>
-
-int	lst_len(t_list *head)
-{
-	int	i;
-
-	i = 0;
-	while (head)
-	{
-		i++;
-		head = head->next;
-	}
-	return (i);
-}
-
-t_list	*lst_new(void)
-{
-	t_list	*new;
-
-	new = malloc(sizeof(t_list));
-	if (!new)
-		return (NULL);
-	new->next = NULL;
-	new->data = NULL;
-	new->read = 0;
-	new->eol = 0;
-	new->eol_found = 0;
-	return (new);
-}
-
-t_list	*lst_append(t_list *head)
-{
-	t_list	*tail;
-	t_list	*new_node;
-
-	tail = head;
-	new_node = lst_new();
-	if (!new_node)
-		return (NULL);
-	if (!head)
-	{
-		head = new_node;
-		return (head);
-	}
-	while (tail->next)
-		tail = tail->next;
-	tail->next = new_node;
-	return (new_node);
-}
+#include <strings.h>
 
 void	lst_print(t_list *head)
 {
@@ -91,42 +44,31 @@ int	line_size(t_list *head)
 	return (total);
 }
 
-char*	lst_to_line(t_list **head)
+char* lst_to_line(t_list *head)
 {
-	size_t line_len = line_size(*head);
-	size_t copied = 0;
-	t_list *curr = *head;
-	t_list *prev = *head;
-	char *line;
+    size_t line_len = line_size(head);
+    size_t copied = 0;
+    char *line;
 
-	line = malloc(sizeof(char) * (line_len + 1));
-	if (!line)
-		return NULL;
-	line[line_len] = 0;
-	while (curr)
-	{
-		if (!curr->eol_found)
-		{
-			memcpy(line + copied, curr->data, curr->read);
-			copied += curr->read;
-		}
-		else
-		{
-			if (curr->eol + 1 < curr->read)
-			{
-				*head = lst_new();
-				(*head)->data = malloc(sizeof(char) * (curr->read - curr->eol + 1));
-				memcpy((*head)->data, curr->data+curr->eol, curr->read-curr->eol);
-				return NULL;
-			}
-		}
-		prev = curr;
-		curr = curr->next;
-		free(prev->data);
-		free(prev);
-	}
-	*head = NULL;
-	return line;
+    line = malloc(sizeof(char) * (line_len + 1));
+    if (!line)
+        return NULL;
+    bzero(line, line_len + 1);
+    while (head)
+    {
+        if (!head->eol_found)
+        {
+            memcpy(line + copied, head->data, head->read);
+            copied += head->read;
+        }
+        else
+        {
+			memcpy(line + copied, head->data, head->eol + 1);
+			copied += head->eol + 1;
+        }
+        head = head->next;
+    }
+    return line;
 }
 
 t_list	*read_to_lst(t_list *head, int fd)
@@ -136,7 +78,7 @@ t_list	*read_to_lst(t_list *head, int fd)
 	if (!head)
 		head = lst_append(head);
 	curr = head;
-	while (1)
+	while (!curr->eof)
 	{
 		curr->data = malloc(sizeof(char) * BUFFER_SIZE);
 		if (!curr->data)
@@ -146,7 +88,8 @@ t_list	*read_to_lst(t_list *head, int fd)
 		{
 			free(curr->data);
 			free(curr);
-			return (NULL);
+			curr->eof = 1;
+			break;
 		}
 		if (memchr(curr->data, '\n', curr->read))
 		{
@@ -154,20 +97,45 @@ t_list	*read_to_lst(t_list *head, int fd)
 			curr->eol_found = 1;
 			break ;
 		}
-		curr = lst_append(head);
+		// curr = lst_append(head);
 	}
 	return (head);
+}
+
+t_list	*lst_shift(t_list *head)
+{
+	t_list	*new;
+
+	new = lst_new();
+	if (head == NULL || new == NULL)
+		return (NULL);
+	while (head && head->next)
+		head = head->next;
+	new->data = malloc(sizeof(char) * (head->read - (head->eol + 1)));
+	if (new->data == NULL)
+		return (NULL);
+	memcpy(new->data, head->data + head->eol + 1, head->read - (head->eol + 1));
+	new->read = head->read - (head->eol + 1);
+	lst_free(&head);
+	return(new);
 }
 
 char	*get_next_line(int fd)
 {
 	static t_list	*head;
+	char 			*line;
 
 	if (fd < 0 || BUFFER_SIZE < 1)
 		return (NULL);
 	head = read_to_lst(head, fd);
 	if (!head)
 		return (NULL);
-	lst_print(head);
-	return (lst_to_line(&head));
+	if (head->eof)
+	{
+		lst_free(&head);
+		return (NULL);
+	}
+	line = lst_to_line(head);
+	head = lst_shift(head);
+	return line;
 }

@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:06:33 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/05 17:29:37 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/05 20:47:54 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 # include <unistd.h>
 # include <string.h>
 
-char	*get_next_line(int fd);
 
 typedef struct s_list
 {
@@ -30,6 +29,10 @@ typedef struct s_list
 	int				read;
 	int				eol;
 	int				eol_found;
+	int				eof;
 }				t_list;
-
+char	*get_next_line(int fd);
+t_list	*lst_new(void);
+t_list	*lst_append(t_list *head);
+void lst_free(t_list **head);
 #endif
