@@ -125,7 +125,11 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (read(fd, &line, 0) == -1)
+	{
+		if (head[fd])
+			return (lst_free(&head[fd]), NULL);
 		return (NULL);
+	}
 	if (!head[fd])
 		head[fd] = lst_new();
 	head[fd] = read_to_lst(head[fd], fd);

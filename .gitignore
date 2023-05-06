@@ -6,6 +6,8 @@
 *.so
 *.dll
 test_gnl
+main.c
+Makefile
 
 # Compiled dynamic libraries
 *.dylib
