@@ -6,25 +6,25 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:25:44 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/06 19:08:38 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/06 19:11:13 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GET_NEXT_LINE_BONUS_H
+# define GET_NEXT_LINE_BONUS_H
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 2048
 # endif
 
-#ifndef OPEN_MAX
-# define OPEN_MAX 64000
-#endif
+# ifndef OPEN_MAX
+#  define OPEN_MAX 64000
+# endif
 
+# include <limits.h>
 # include <stdlib.h>
 # include <string.h>
 # include <unistd.h>
-# include <limits.h>
 
 typedef struct s_list
 {
