@@ -1,4 +1,0 @@
-This is a sample text file.
-It contains multiple lines.
-Some lines are short, others are longer.
-This is the last line.
