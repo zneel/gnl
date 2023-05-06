@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:10:07 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/06 16:27:21 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/06 17:44:47 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,29 @@ t_list	*lst_new(void)
 	return (new);
 }
 
+void	*ft_memchr(const void *s, int c, size_t n)
+{
+	while (n--)
+	{
+		if (*(unsigned char *)s == (unsigned char)c)
+			return ((void *)s);
+		s++;
+	}
+	return (NULL);
+}
+
+void	*ft_memcpy(void *dest, const void *src, size_t n)
+{
+	unsigned char		*d;
+	const unsigned char	*s;
+
+	d = (unsigned char *)dest;
+	s = (const unsigned char *)src;
+	while (n--)
+		*d++ = *s++;
+	return (dest);
+}
+
 t_list	*lst_append(t_list *head)
 {
 	t_list	*tail;
@@ -45,18 +68,18 @@ t_list	*lst_append(t_list *head)
 	return (new_node);
 }
 
-void lst_free(t_list **head) 
+void	lst_free(t_list **head)
 {
-    t_list *current;
-    t_list *next;
+	t_list	*current;
+	t_list	*next;
 
-    current = *head;
-    while (current) 
-    {
-        next = current->next;
-        free(current->data);
-        free(current);
-        current = next;
-    }
-    *head = NULL;
+	current = *head;
+	while (current)
+	{
+		next = current->next;
+		free(current->data);
+		free(current);
+		current = next;
+	}
+	*head = NULL;
 }

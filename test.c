@@ -31,9 +31,9 @@ int	main(void)
 	// test_case("gnlTester/files/multiple_nlx5");
 	// test_case("gnlTester/files/42_with_nl");
 	// // Empty file
-	test_case("emptyfile.txt");
+	// test_case("emptyfile.txt");
 	// File with a single character
-	// test_case("single_char.txt");
+	test_case("single_char.txt");
 	// File with no newline character
 	// test_case("no_newline.txt");
 	// File with very long lines
