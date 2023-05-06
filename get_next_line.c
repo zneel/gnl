@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:09:47 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/06 19:20:24 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/06 19:23:11 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ t_list	*lst_shift(t_list *head)
 	while (tail->next)
 		tail = tail->next;
 	new = lst_new();
-	if (new == NULL)
+	if (!new)
 		return (NULL);
 	new->eof = tail->eof;
 	if (!tail->eof && tail->read - (tail->eol + 1) != 0)
@@ -116,8 +116,7 @@ t_list	*lst_shift(t_list *head)
 			new->eol_found = 1;
 		}
 	}
-	lst_free(&head);
-	return (new);
+	return (lst_free(&head), new);
 }
 
 char	*get_next_line(int fd)

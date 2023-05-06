@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:25:41 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/06 19:20:08 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/06 19:24:38 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,8 +114,7 @@ t_list	*lst_shift(t_list *head)
 			new->eol_found = 1;
 		}
 	}
-	lst_free(&head);
-	return (new);
+	return (lst_free(&head), new);
 }
 
 char	*get_next_line(int fd)
