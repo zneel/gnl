@@ -109,12 +109,6 @@ t_list	*lst_shift(t_list *head)
 		if (!new->data)
 			return (NULL);
 		ft_memcpy(new->data, tail->data + tail->eol + 1, new->read);
-		new->eol = (ssize_t)(char *)ft_memchr(new->data, '\n', new->read);
-		if (new->eol)
-		{
-			new->eol = (ssize_t)((char *)new->eol - new->data);
-			new->eol_found = 1;
-		}
 	}
 	return (lst_free(&head), new);
 }
