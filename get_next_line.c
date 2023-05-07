@@ -33,6 +33,12 @@ ssize_t	line_size(t_list *head)
 	return (total);
 }
 
+/*
+* Takes a linked list as input and calculate the line length
+* Iterate over the linked list and copy the data to the line buffer
+* Stop copy after an EOL is found or EOF is reached.
+*/
+
 char	*lst_to_line(t_list *head)
 {
 	ssize_t	line_len;
@@ -62,6 +68,12 @@ char	*lst_to_line(t_list *head)
 	return (line);
 }
 
+/*
+* Iterate the linked list node and read data from the fd
+* to the node data buffer
+* Continue reading and appending until EOL or EOF is found.
+*/
+
 t_list	*read_to_lst(t_list *head, int fd)
 {
 	t_list	*c;
@@ -89,6 +101,14 @@ t_list	*read_to_lst(t_list *head, int fd)
 	}
 	return (head);
 }
+
+/*
+* Goes to the last element of the list
+* Create a new node
+* Copy the remaining data after the EOL char
+* Free the linked list
+* Return new head
+*/
 
 t_list	*lst_shift(t_list *head)
 {

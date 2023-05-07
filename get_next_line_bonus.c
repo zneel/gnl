@@ -60,6 +60,9 @@ char	*lst_to_line(t_list *head)
 	return (line);
 }
 
+/*
+* 
+*/
 t_list	*read_to_lst(t_list *head, int fd)
 {
 	t_list	*c;
