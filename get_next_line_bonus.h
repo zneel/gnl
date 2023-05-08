@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:25:44 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/06 19:11:13 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/08 11:25:49 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,7 @@
 #  define BUFFER_SIZE 2048
 # endif
 
-# ifndef OPEN_MAX
-#  define OPEN_MAX 64000
-# endif
+# define MAX_OPEN 64000
 
 # include <limits.h>
 # include <stdlib.h>

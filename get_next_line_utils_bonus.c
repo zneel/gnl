@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:25:50 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/06 19:19:57 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/08 11:28:04 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,6 @@ t_list	*lst_append(t_list *head)
 	new_node = lst_new();
 	if (!new_node)
 		return (NULL);
-	if (!head)
-		return (new_node);
 	while (tail->next)
 		tail = tail->next;
 	tail->next = new_node;

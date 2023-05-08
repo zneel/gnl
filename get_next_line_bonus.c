@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:25:41 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/06 19:24:38 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/08 11:27:48 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,30 @@
 
 ssize_t	line_size(t_list *head)
 {
+	t_list	*current;
 	ssize_t	total;
 
+	current = head;
 	total = 0;
-	while (head)
+	while (current)
 	{
-		if (head->eol_found)
+		if (current->eol_found)
 		{
-			total += head->eol + 1;
+			total += current->eol + 1;
 			break ;
 		}
-		if (head->read > 0)
-			total += head->read;
-		head = head->next;
+		if (current->read > 0)
+			total += current->read;
+		current = current->next;
 	}
 	return (total);
 }
+
+/*
+* Takes a linked list as input and calculate the line length
+* Iterate over the linked list and copy the data to the line buffer
+* Stop copy after an EOL is found or EOF is reached.
+*/
 
 char	*lst_to_line(t_list *head)
 {
@@ -60,20 +68,24 @@ char	*lst_to_line(t_list *head)
 	return (line);
 }
 
+/*
+* Iterate the linked list node and read data from the fd
+* to the node data buffer
+* Continue reading and appending until EOL or EOF is found.
+*/
+
 t_list	*read_to_lst(t_list *head, int fd)
 {
 	t_list	*c;
 
-	if (!head)
-		return (NULL);
 	c = head;
-	while (1)
+	while (1 && c)
 	{
 		if (c->read == 0 && c->eof == 0)
 		{
 			c->data = malloc(sizeof(char) * BUFFER_SIZE);
 			if (!c->data)
-				return (NULL);
+				return (lst_free(&head), NULL);
 			c->read = read(fd, c->data, BUFFER_SIZE);
 			c->eof = c->read <= 0;
 		}
@@ -83,10 +95,18 @@ t_list	*read_to_lst(t_list *head, int fd)
 		if (c->eol_found)
 			c->eol = (char *)ft_memchr(c->data, '\n', c->read) - c->data;
 		else
-			c = lst_append(head);
+			c = lst_append(c);
 	}
 	return (head);
 }
+
+/*
+* Goes to the last element of the list
+* Create a new node
+* Copy the remaining data after the EOL char
+* Free the linked list
+* Return new head
+*/
 
 t_list	*lst_shift(t_list *head)
 {
@@ -97,15 +117,15 @@ t_list	*lst_shift(t_list *head)
 	while (tail->next)
 		tail = tail->next;
 	new = lst_new();
-	if (new == NULL)
-		return (NULL);
+	if (!new)
+		return (lst_free(&head), NULL);
 	new->eof = tail->eof;
 	if (!tail->eof && tail->read - (tail->eol + 1) != 0)
 	{
 		new->read = tail->read - (tail->eol + 1);
 		new->data = malloc(sizeof(char) * new->read);
 		if (!new->data)
-			return (NULL);
+			return (lst_free(&head), NULL);
 		ft_memcpy(new->data, tail->data + tail->eol + 1, new->read);
 	}
 	return (lst_free(&head), new);
@@ -113,19 +133,17 @@ t_list	*lst_shift(t_list *head)
 
 char	*get_next_line(int fd)
 {
-	static t_list	*head[OPEN_MAX];
+	static t_list	*head[MAX_OPEN];
 	char			*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	if (read(fd, &line, 0) == -1)
-	{
-		if (head[fd])
-			return (lst_free(&head[fd]), NULL);
-		return (NULL);
-	}
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, &line, 0) == -1)
+		return (lst_free(&head[fd]), NULL);
 	if (!head[fd])
+	{
 		head[fd] = lst_new();
+		if (!head[fd])
+			return (NULL);
+	}
 	head[fd] = read_to_lst(head[fd], fd);
 	if (!head[fd])
 		return (NULL);

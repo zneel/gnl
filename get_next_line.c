@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/30 17:09:47 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/06 19:49:23 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/08 11:22:36 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,16 +78,14 @@ t_list	*read_to_lst(t_list *head, int fd)
 {
 	t_list	*c;
 
-	if (!head)
-		return (NULL);
 	c = head;
-	while (1)
+	while (1 && c)
 	{
 		if (c->read == 0 && c->eof == 0)
 		{
 			c->data = malloc(sizeof(char) * BUFFER_SIZE);
 			if (!c->data)
-				return (NULL);
+				return (lst_free(&head), NULL);
 			c->read = read(fd, c->data, BUFFER_SIZE);
 			c->eof = c->read <= 0;
 		}
@@ -97,7 +95,7 @@ t_list	*read_to_lst(t_list *head, int fd)
 		if (c->eol_found)
 			c->eol = (char *)ft_memchr(c->data, '\n', c->read) - c->data;
 		else
-			c = lst_append(head);
+			c = lst_append(c);
 	}
 	return (head);
 }
@@ -120,14 +118,14 @@ t_list	*lst_shift(t_list *head)
 		tail = tail->next;
 	new = lst_new();
 	if (!new)
-		return (NULL);
+		return (lst_free(&head), NULL);
 	new->eof = tail->eof;
 	if (!tail->eof && tail->read - (tail->eol + 1) != 0)
 	{
 		new->read = tail->read - (tail->eol + 1);
 		new->data = malloc(sizeof(char) * new->read);
 		if (!new->data)
-			return (NULL);
+			return (lst_free(&head), NULL);
 		ft_memcpy(new->data, tail->data + tail->eol + 1, new->read);
 	}
 	return (lst_free(&head), new);
@@ -138,16 +136,14 @@ char	*get_next_line(int fd)
 	static t_list	*head;
 	char			*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	if (read(fd, &line, 0) == -1)
-	{
-		if (head)
-			return (lst_free(&head), NULL);
-		return (NULL);
-	}
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, &line, 0) == -1)
+		return (lst_free(&head), NULL);
 	if (!head)
+	{
 		head = lst_new();
+		if (!head)
+			return (NULL);
+	}
 	head = read_to_lst(head, fd);
 	if (!head)
 		return (NULL);
