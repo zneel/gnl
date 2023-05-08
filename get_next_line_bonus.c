@@ -6,7 +6,7 @@
 /*   By: ebouvier <ebouvier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/06 18:25:41 by ebouvier          #+#    #+#             */
-/*   Updated: 2023/05/08 11:27:48 by ebouvier         ###   ########.fr       */
+/*   Updated: 2023/05/08 14:47:06 by ebouvier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ char	*get_next_line(int fd)
 	static t_list	*head[MAX_OPEN];
 	char			*line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, &line, 0) == -1)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (lst_free(&head[fd]), NULL);
 	if (!head[fd])
 	{
